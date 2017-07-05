@@ -1,0 +1,43 @@
+{
+  "name": "__MSG_appName__",
+  "version": "1.0.0",
+  "manifest_version": 2,
+  "description": "__MSG_appDescription__",
+  "icons": {
+    "16": "icons/ds-icon-16_transparent.png",
+    "128": "icons/ds-icon-128_transparent.png"
+  },
+  "default_locale": "en",
+  "background": {
+    "scripts": [
+      "scripts/background.js"
+    ]
+  },
+  "permissions": [
+    "tabs",
+    "storage",
+    "alarms",
+    "idle",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "browser_action": {
+    "default_icon": {
+      "19": "icons/ds-icon-19_transparent.png",
+      "38": "icons/ds-icon-38_transparent.png"
+    },
+    "default_title": "Datenspende – Bundestagswahl 2017",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "match_about_blank": true,
+      "css": ["styles/overlay.css"],
+      "js": ["scripts/overlay/index.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    "icons/*.png"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "appName": {
+    "message": "Datenspende – Bundestagswahl 2017",
+    "description": "Datenspende – Bundestagswahl 2017"
+  },
+  "appDescription": {
+    "message": "Extension zum Beobachten von Google News und Google Search zur Bundestagswahl 2017",
+    "description": "Extension zum Beobachten von Google News und Google Search zur Bundestagswahl 2017"
+  },
+  "btnTooltip": {
+    "message": "Extension",
+    "description": "Tooltip for the button."
+  }
+}
