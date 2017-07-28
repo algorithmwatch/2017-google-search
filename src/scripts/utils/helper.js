@@ -1,4 +1,5 @@
 import axios from 'axios';
+import randomId from 'random-id';
 
 import storage from './storage';
 import ext from './ext';
@@ -65,7 +66,6 @@ export function getTimeStamp() {
 
 
 export function postToServer(err, res) {
-  console.log('post to server', err, res);
   getConfig()
     .then(config => {
       axios.post(appConfig.resultUrl, res, {'timeout': config.timeoutForRequests * 1000 || 10000})
@@ -77,6 +77,9 @@ export function postToServer(err, res) {
         });
     })
     .catch(console.log('error while loading config'));
+}
 
 
+export function makeId() {
+  return randomId(32, "a0");
 }

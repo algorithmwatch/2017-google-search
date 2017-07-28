@@ -20,7 +20,7 @@ ext.idle.onStateChanged.addListener((state) => {
     cancelAlarm('runcrawl');
   }
 
-  if (state === 'active' && previousState === 'locked') {
+  if (state === 'active' &&  previousState === 'locked') {
     // start again
     createCrawlerAlarm(localConfig);
   }
@@ -42,7 +42,6 @@ function init() {
 
 function createCrawlerAlarm(_config) {
   // date now
-  const currentTime = moment();
   startDate = _config.startDate;
   endDate = _config.endDate;
   // alarm for running crawl. should be done every 4 hours
@@ -50,7 +49,7 @@ function createCrawlerAlarm(_config) {
   // else: display overlay
 
   ext.alarms.create('runcrawl', {
-    when: getNextTime(currentTime, _config.runInterval),
+    when: getNextTime(_config.runInterval),
     periodInMinutes: _config.runInterval
   });
 }
@@ -72,19 +71,37 @@ function createAlarms(_config) {
 }
 
 /*
-{params} current Time Obj (Moment js),
-         interval in minutes
-{returns} time in ms(current Timezone)
+{params} interval in minutes(i.e 240)
+{returns} timestamp in ms
  */
-function getNextTime(currentTime, interval) {
+function getNextTime(interval) {
   //USE THIS FOR FINAL VERSION: INTERVAL >= 60
+  const currentTime = moment();
+
+  // example: time now 10:50 
+  // hoursOffset = 240 / 60 = 4
+  // currentHours = 10 + 1 = 11
+  // timeWithOffset = 
+  //  moment.hours(Math.ceil(11 / 4) * 4) = 12
+  //   .minutes(0)
+  //   .seconds(0)
+  // so next startingpoint will be at 12:00:00 (hh/mm/ss)
+
+
+  // get hours between alarms
   const hoursOffset = interval / 60;
+  // round to next full hour
   const currentHours = currentTime.hours() + 1;
-  const timeWithOffset = moment().hours(Math.ceil(currentHours / hoursOffset) * hoursOffset).minutes(0);
+  // round to next full interval
+  // Round(11 / 4) = ~3
+  // 3 * 4 = 12
+  const timeWithOffset = moment().hours(Math.ceil(currentHours / hoursOffset) * hoursOffset);
+  timeWithOffset.minutes(0);
   timeWithOffset.seconds(0);
 
-  const currentTimeZone = moment.tz.guess();
-  return timeWithOffset.tz(currentTimeZone).valueOf();
+  console.log("timeWithOffset", timeWithOffset, timeWithOffset.valueOf());
+
+  return timeWithOffset.valueOf();
 }
 
 function cancelAlarm(alarmName) {
@@ -100,7 +117,15 @@ function handleAlarms(alarms, _config) {
     case 'config': updateConfig(); break;
     case 'runcrawl':
       if (inTimeFrame()) {
-        handleCrawlingAlarm();
+        // check if it´s an past alarm, difference shouldn´t be more than a half a minute
+        // then ignore old alarm
+        if ((Math.abs(moment().valueOf() - alarms.scheduledTime)) < 30000) {
+          console.log('crawling at scheduled:', alarms.scheduledTime);
+
+          handleCrawlingAlarm();
+        } else {
+          ext.alarms.getAll((alarms) => { console.log(alarms); });
+        }
       } else {
         alert(_config.endText);
       }

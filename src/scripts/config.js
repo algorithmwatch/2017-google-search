@@ -4,35 +4,9 @@ import { appConfig } from './appConfig';
 import axios from 'axios';
 
 const defaultConfig = {
-  "startDate": "2017-07-05T00:00:00+02:00",
-  "runInterval": 120,
   "endDate": "2017-10-01T00:00:00+02:00",
-  "refreshConfigInterval": 1440,
-  "introPage": "https://datenspende.algorithmwatch.org/intro.html/",
   "endText": "Datenspende – Bundestagswahl 2017: Danke für die Unterstützung. Der Zeitraum für das Sammeln der Daten ist abgelaufen. Bitte das Plugin/Add-on deaktivieren oder deinstallieren.",
-  "selectors": {
-    "news": {
-      "medium": ".IH8C7b",
-      "title": ".k3Pzib .kWyHVd .nuEeue",
-      "text": "",
-      "item": ".PaqQNc",
-      "sourceUrl": ".k3Pzib .kWyHVd .nuEeue",
-      "loginStatus": ".gb_xf",
-      "published": ".oM4Eqe"
-    },
-    "search": {
-      "sourceUrl": ".r a",
-      "topStories": "._KBh",
-      "title": ".r",
-      "text": ".st",
-      "storySourceUrl": "a",
-      "item": ".g",
-      "loginStatus": ".gb_8a",
-      "storyMedium": "._NRj cite",
-      "storyTitle": "._IRj",
-      "storyPublished": "._NRj span"
-    }
-  },
+  "introPage": "https://datenspende.algorithmwatch.org/intro.html",
   "keywords": [
     "Angela Merkel",
     "Martin Schulz",
@@ -51,7 +25,33 @@ const defaultConfig = {
     "Die Linke",
     "AfD"
   ],
-  "landingPage": "https://datenspende.algorithmwatch.org",
+  "landingPage": "https://datenspende.algorithmwatch.org/",
+  "refreshConfigInterval": 1440,
+  "runInterval": 240,
+  "selectors": {
+    "news": {
+      "item": ".PaqQNc",
+      "loginStatus": ".gb_xf",
+      "medium": ".IH8C7b",
+      "published": ".oM4Eqe",
+      "sourceUrl": ".nuEeue",
+      "text": "",
+      "title": ".k3Pzib .kWyHVd .nuEeue"
+    },
+    "search": {
+      "item": ".g",
+      "loginStatus": ".gb_8a",
+      "sourceUrl": ".r a",
+      "storyMedium": "._NRj cite",
+      "storyPublished": "._NRj span",
+      "storySourceUrl": "a",
+      "storyTitle": "._IRj",
+      "text": ".st",
+      "title": ".r",
+      "topStories": "._KBh"
+    }
+  },
+  "startDate": "2017-07-05T00:00:00+02:00",
   "timeoutForRequests": 5
 };
 
@@ -64,6 +64,7 @@ export function getConfig() {
 
     storage.get('config', function(result) {
       if (ext.runtime.lastError) {
+        console.log('Runtime error.');
         return resolve(defaultConfig);
       }
 

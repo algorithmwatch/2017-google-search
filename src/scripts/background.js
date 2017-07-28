@@ -10,13 +10,12 @@ import Tasks from './tasks';
 
 import { appConfig } from './appConfig';
 import { getConfig, updateConfig } from './config';
-import { getOverlaySetting, setOverlaySetting, setCrawlerOption } from './utils/helper';
+import { getOverlaySetting, setOverlaySetting, setCrawlerOption, makeId } from './utils/helper';
 
-let isCrawling = false;
 
 Tasks.init();
 
-ext.runtime.onInstalled.addListener(function(reason) {
+ext.runtime.onInstalled.addListener(function(reasonInfo) {
   getConfig().then(config => {
     const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
     const options = isFirefox ? { url: config.introPage } : {};
@@ -24,13 +23,21 @@ ext.runtime.onInstalled.addListener(function(reason) {
       setTimeout(showOverlay, 2000);
     });
   });
+
+  const id = makeId();
+
+  if (reasonInfo.reason === 'install') {
+    storage.set({'uniqueId': id}, () => {
+      console.log('uniqueId set');
+    });
+  }
 });
 
 ext.runtime.onMessage.addListener(requestListener);
 
 function requestListener(request, sender, sendResponse) {
   switch (request.action) {
-    case 'test-crawl': handleCrawlRequest('test'); break;
+    case 'test-crawl': handleCrawlRequest(); break;
     case 'handle-crawl': handleCrawlRequest(); break;
     case 'handle-search': searchPlayground(); break;
     case 'handle-news': newsPlayground(); break;
@@ -41,39 +48,33 @@ function requestListener(request, sender, sendResponse) {
   }
 }
 
-// set mode = 'test' for testing the crawling function, don't set mode for crawling and sending data to server
-export function handleCrawlRequest(mode) {
+export function handleCrawlRequest() {
   // updating config in storage
   storage.set({'date': Date.now()}, () => {
     console.log('date saved');
   });
 
-  ext.windows.getCurrent(window => {
-    ext.windows.create({
-      width: 400,
-      height: 400,
-      top: window.height - 20
-    }, newWindow => {
-      newWindow.focused = false;
-      updateCrawlingStatus();
-      getConfig().then((config) => {
-        Async.series([crawlNews(config, newWindow.id, mode), crawlSearch(config, newWindow.id, mode)], onCrawlDone.bind({
-          id: newWindow.id,
-          mode: mode
-        }));
+  storage.get('uniqueId', function(id){
+    ext.windows.getCurrent(window => {
+      ext.windows.create({
+        width: 400,
+        height: 400,
+        top: window.height - 20
+      }, newWindow => {
+        newWindow.focused = false;
+        getConfig().then((config) => {
+          Async.series([crawlNews(config, newWindow.id, id.uniqueId), crawlSearch(config, newWindow.id, id.uniqueId)], onCrawlDone.bind({
+            id: newWindow.id
+          }));
+        });
       });
     });
   });
 }
 
-
 function onCrawlDone(err, res) {
-  updateCrawlingStatus();
+  console.log('============ DONE ============', err, res);
   ext.windows.remove(this.id);
-}
-
-function updateCrawlingStatus() {
-  isCrawling = !isCrawling;
 }
 
 export function showOverlay() {

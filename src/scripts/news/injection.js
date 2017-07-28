@@ -13,7 +13,7 @@ export function injectScript(selectors) {
 
   const data = [].map.call(items, itemNode => {
     const title = itemNode.querySelector(selector.title).textContent;
-    const sourceUrl = document.querySelector(selector.sourceUrl).href;
+    const sourceUrl = itemNode.querySelector(selector.sourceUrl).href;
     const medium = itemNode.querySelector(selector.medium).textContent;
     const published = itemNode.querySelector(selector.published).textContent;
 

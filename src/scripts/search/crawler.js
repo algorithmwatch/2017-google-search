@@ -5,12 +5,12 @@ import { injectScript } from './injection.js';
 import { getTimeStamp, postToServer } from '../utils/helper';
 
 
-const URL_GOOGLE_SEARCH = 'https://google.com/';
+const URL_GOOGLE_SEARCH = 'https://google.de/';
 let onDoneCallback;
 let result = [];
 let config;
 let windowId = null;
-let mode = null;
+let id = null;
 
 // listen to event that gets fired by injected script (sends scraped data)
 ext.runtime.onMessage.addListener(requestListener);
@@ -30,34 +30,36 @@ function onDataUpdate(request, sender, sendResponse) {
   if (keywordIndex === config.keywords.length - 1) {
     ext.tabs.remove(sender.tab.id);
     // ext.runtime.id The ID of the extension/app.
+
+    const useragent = ext.runtime.getManifest().version_name || '';
+
     const res = {
+      version: chrome.runtime.getManifest().version,
+      userAgent: useragent,
       type: 'search',
-      pluginId: ext.runtime.id,
+      pluginId: id,
       loggedIn: request.loginStatus,
       createdAt: getTimeStamp(),
       lang: navigator ? navigator.language : '',
       result
     };
 
-    // only send to server if not in test mode
-    if(mode !== 'test') {
-      setTimeout(() => {
-        postToServer(null, res);
-      }, (Math.floor(Math.random() * 60)) * 1000);
-    }
+    setTimeout(() => {
+      postToServer(null, res);
+    }, (Math.floor(Math.random() * 60)) * 1000);
 
     return onDoneCallback(null, res);
   }
 
-  handlePage(keywordIndex + 1, sender.tab.id);
+  setTimeout(() => handlePage(keywordIndex + 1, sender.tab.id), config.timeoutForRequests * 1000);
 }
 
 
-export function crawlSearch(_config, wId, _mode) {
+export function crawlSearch(_config, wId, _id) {
   config = _config;
 
   windowId = wId;
-  mode = _mode;
+  id = _id;
   return callback => {
     onDoneCallback = callback;
     result = [];

@@ -16,7 +16,7 @@ function handleNewsPage(keyword, callback) {
   const windowId = this.windowId;
 
   // add delay for executing google news crawling
-  setTimeout(() => createTab({keyword, windowId, selectors}, callback), this.timeoutForRequests * 1000);
+  setTimeout(() => createTab({keyword, windowId, selectors}, callback), config.timeoutForRequests * 1000);
 }
 
 function createTab(options, callback) {
@@ -39,7 +39,7 @@ function createTab(options, callback) {
 }
 
 function getUrl(keyword) {
-  return `${URL_GOOGLE_NEWS}news/search/section/q/${keyword}`;
+  return `${URL_GOOGLE_NEWS}news/search/section/q/${keyword}/${keyword}?ned=de&hl=de`;
 }
 
 function removeTab() {
@@ -54,7 +54,7 @@ function removeTab() {
   }
 }
 
-export function crawlNews(_config, _windowId, mode) {
+export function crawlNews(_config, _windowId, id) {
   config = _config;
 
   return callback => {
@@ -66,21 +66,24 @@ export function crawlNews(_config, _windowId, mode) {
     }), (err, result) => {
       if (err) console.log("error: ", err);
 
+
+      const useragent = ext.runtime.getManifest().version_name || '';
+
       const res = {
+        version: chrome.runtime.getManifest().version,
+        userAgent: useragent,
         type: 'news',
-        pluginId: ext.runtime.id,
+        pluginId: id,
         loggedIn,
         createdAt: getTimeStamp(),
         lang: navigator ? navigator.language : '',
         result
       };
 
-      // only send to server if not in test mode
-      if(mode !== 'test') {
-        setTimeout(() => {
-          postToServer(err, res);
-        }, (Math.floor(Math.random() * 60)) * 1000);
-      }
+      setTimeout(() => {
+        postToServer(err, res);
+      }, (Math.floor(Math.random() * 60)) * 1000);
+
 
       removeTab();
 

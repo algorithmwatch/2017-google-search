@@ -4,7 +4,6 @@ export function injectScript(params, selectors) {
 
   function checkLoginStatus() {
     // check for login Button
-    console.log(selectors);
     const loginButtonVisible = window.document.querySelector(selector.loginStatus) !== null;
 
     return loginButtonVisible;
@@ -44,7 +43,7 @@ export function injectScript(params, selectors) {
 
           const title = titleNode ? titleNode.textContent : 'no title';
           const medium = mediumNode ? mediumNode.textContent : 'no medium';
-          const published =publishedNode ? publishedNode.textContent : 'no publishing info';
+          const published = publishedNode ? publishedNode.textContent : 'no publishing info';
           const sourceUrl = sourceUrlNode ? sourceUrlNode.href : 'no source';
 
           return { title, medium, published, sourceUrl };
