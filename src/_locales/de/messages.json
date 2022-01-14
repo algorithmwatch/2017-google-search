@@ -9,6 +9,6 @@
   },
   "btnTooltip": {
     "message": "Extension",
-    "description": "Tooltip for the button."
+    "description": "Tooltip für den Knopf."
   }
 }
